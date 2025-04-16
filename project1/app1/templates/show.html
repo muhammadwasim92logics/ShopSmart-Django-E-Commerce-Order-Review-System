@@ -1,0 +1,21 @@
+{% extends "website/base.html" %}
+{% block title %}Show{% endblock %}
+{% block content %}
+    <div class="grid grid-cols-4 gap-4 m-4">
+        {% for data in data %}
+
+                <div class="bg-blue-800 p-5 rounded transition-all hover:bg-red-900 hover:scale-120">
+                    <img class="rounded shadow-lg" src="{{ data.image.url }}" alt="Image">
+                    <h3 class="text-2xl font-bold">{{ data.name }}</h3>
+                    <a href="{% url 'ice_dec' data.id %}">
+                        <button type="button" class="w-[100%] bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition">
+                            {{ data.type }} {{ data.id }}
+                        </button>
+                    </a>
+                        
+                            <h4>Price {{data.price}} , Available: {{data.avalible_ch}}</h4>
+                                    
+                </div>
+        {% endfor %}
+    </div>
+{% endblock content %}
