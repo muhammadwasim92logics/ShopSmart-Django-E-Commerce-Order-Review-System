@@ -1,0 +1,56 @@
+{% extends "website/base.html" %}
+
+{% block title %}
+🍦 Welcome to Sweet Bliss – The Best Ice Cream Shop!
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+ <br>
+ <br>
+ 
+<section class="bg-gradient-to-r bg-white-900 text-black text-center py-16">
+    <h1 class="text-5xl font-extrabold text-white">Welcome to Sweet Bliss 🍦</h1>
+    <p class="mt-4 text-lg font-light text-white"> Dive into a world of rich, velvety flavors, where every scoop is a moment of pure joy, sweetness, and endless delight! 🍨✨❤️  </p>
+    <a href="{% url 'show' %}" class="mt-6 inline-block bg-white text-black px-6 py-3 rounded-lg font-semibold text-lg shadow-md hover:bg-gray-200 transition">
+        Explore Flavors 🍨
+    </a>
+</section>
+<br>
+<!-- About Section -->
+<section class="container mx-auto px-6 py-12">
+    <h2 class="text-3xl font-bold text-center text-black mb-6 text-white">Why Choose Sweet Bliss? 🍦</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Quality -->
+         <br>
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
+            <h3 class="text-2xl font-semibold text-black">🌟 Premium Ingredients</h3>
+            <p class="text-black mt-2">We use only the finest dairy, fresh fruits, and pure chocolate for a rich and creamy taste.</p>
+        </div>
+        <br>
+        <!-- Variety -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
+            <h3 class="text-2xl font-semibold text-black">🍨 50+ Flavors</h3>
+            <p class="text-black mt-2">From classic vanilla to exotic mango passion, we have something for everyone!</p>
+        </div>
+        <br>
+        <!-- Freshness -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
+            <h3 class="text-2xl font-semibold text-black">🥄 Made Fresh Daily</h3>
+            <p class="text-black mt-2">Our ice creams are handcrafted daily to ensure the best taste and texture.</p>
+        </div>
+    </div>
+</section>
+<br>
+<br>
+<br>
+<!-- Call to Action -->
+<section class="text-center py-12 bg-gray-100">
+    <h2 class="text-4xl font-extrabold text-black">Visit Us Today! 🍦</h2>
+    <p class="text-black mt-4">Experience the magic of handcrafted ice creams at Sweet Bliss.</p>
+    <a href="{% url 'about1' %}" class="mt-6 inline-block bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-md hover:bg-purple-700 transition">
+        Learn More About Us ➡️
+    </a>
+</section>
+{% endblock %}

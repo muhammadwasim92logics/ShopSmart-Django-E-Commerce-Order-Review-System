@@ -1,0 +1,330 @@
+{% extends "website/base.html" %}
+
+{% block title %}Show Details{% endblock %}
+
+{% block content %}
+<br>
+    <!-- Main Ice Cream Details Section -->
+    <div class="bg-blue-700 text-white p-6 rounded-lg shadow-lg mx-auto max-w-4xl mt-6">
+        <h5 class="text-3xl font-bold">{{ ice.dec }}</h5>
+    
+        <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+                {% for img in ice_image %}
+                    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="{{ forloop.counter0 }}" 
+                        class="{% if forloop.first %}active{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+        
+            <!-- Carousel Items -->
+            <div class="carousel-inner">
+                {% for img in ice_image %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ img.image.url }}" class="d-block w-100 h-[500px] object-cover mx-auto rounded-lg" alt="Ice Cream Image">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5 class="text-xl font-bold">{{ ice.name }}</h5>
+                            <p class="text-base">{{ ice.dec }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        
+            <!-- Previous & Next Buttons -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+        <h5 class="text-xl font-semibold mt-2">🍦 Total Ice Creams In Stock: 
+            <span class="text-yellow-300">{{ ice.avalible_ch }}</span>
+        </h5>
+        <h4 class="text-lg font-bold mt-4">Final Rating: 
+            <span class="text-yellow-400">{{ avg_rating }} / 5</span>
+        </h4>
+        
+       
+    </div>
+    <br>
+    <br>
+
+    {% if messages %}
+    {% for message in messages %}
+    
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <strong>
+                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}⚠ Important: {% endif %}
+            </strong> 
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+   {% endif %}
+
+   <div class="flex justify-center items-center min-h-screen" >
+    <div class="bg-white border-4 border-double border-blue-600 rounded-3xl shadow-lg w-[550px] p-6 mx-auto mt-6">
+        <form id="buyForm" action="{% url 'buy' ice.id %}" method="post"  class="form-container">
+
+            {% csrf_token %}
+            
+            <h2 class="text-center\ text-2xl font-semibold text-gray-800 mb-6">Place Order</h2>
+
+            <div class="mb-4">
+                <label for="name" class=" text-left block text-sm font-medium text-gray-700" >Name</label>
+                <input type="text" name="name" 
+                    class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 text-black focus:outline-none" 
+                    placeholder="Enter Name" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="phone" class="text-left block text-sm font-medium text-gray-700">Phone</label>
+                <input type="number" name="phone" 
+                    class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-2 text-black focus:ring-blue-400 focus:outline-none" 
+                    placeholder="Enter Phone" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="address" class="text-left block text-sm font-medium text-gray-700">Address</label>
+                <input type="text" name="address" 
+                    class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 text-black focus:outline-none" 
+                    placeholder="Enter Your Address" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="address" class="text-left block text-sm font-medium text-gray-700">E-Mail</label>
+                <input type="email" name="email" 
+                    class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 text-black focus:outline-none" 
+                    placeholder="Enter Your E-Mail" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="quantity" class="text-left block text-sm font-medium text-gray-700">Quantity</label>
+                <input type="number" name="q" min="1" 
+                    class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 text-black focus:outline-none" 
+                    placeholder="Enter Quantity" required>
+            </div>
+
+            <button type="submit" onclick="openForm()"
+                class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 16 16"> 
+                    <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 6H14.5a.5.5 0 0 1 .491.592l-1.5 7a.5.5 0 0 1-.491.408H4a.5.5 0 0 1-.491-.408L2.01 7.5H1a.5.5 0 0 1-.5-.5v-5zM3.102 6l1.313 6h8.17l1.313-6H3.102zM5 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/> 
+                </svg>
+                Buy {{ ice.name }} Ice-Cream Now
+            </button>
+
+            <div class="form-popup border rounded p-4 shadow bg-white text-black"  id="myForm" style="width: 900px; margin-bottom: 150px;">
+
+                <h1 class="mb-4 text-center"><strong>Enter Card Details</strong></h1>
+
+                <div class="col-md-6">
+                    <label class="form-label d-block  text-left"><b>Select Card Type</b></label>
+                
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="card_type" id="visa" value="visa" required>
+                        <label class="form-check-label" for="visa">Visa</label>
+                    </div>
+                
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="card_type" id="debit" value="debit" required>
+                        <label class="form-check-label" for="debit">Debit</label>
+                    </div>
+                
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="card_type" id="master" value="master" required>
+                        <label class="form-check-label" for="master">Master</label>
+                    </div>
+                </div>
+                <br>
+            
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="nameoncard" class="form-label"><b>Name on Card</b></label>
+                        <input type="text" class="form-control" id="nameoncard" name="nameoncard" placeholder="Enter Name On Card" required>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="card_no" class="  text-leftl"><b>Card No</b></label>
+                        <input type="text" class="form-control" id="card_no" placeholder="Enter Card No" name="cardno" required>
+                    </div>
+                </div>
+            
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="cvc" class="  text-left"><b>CVC</b></label>
+                        <input type="number" class="form-control" id="cvc" placeholder="Enter CVC" name="cvc" required>
+                    </div>
+                    <!-- Add another field here if needed to balance the row -->
+                    <div class="col-md-6">
+                        <!-- Optional second input or leave blank for spacing -->
+                    </div>
+                </div>
+            
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary me-2">Done</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeForm()">Close</button>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+
+
+<style>
+    body {font-family: Arial, Helvetica, sans-serif;}
+    * {box-sizing: border-box;}
+    
+    /* Button used to open the contact form - fixed at the bottom of the page */
+    .open-button {
+      background-color: #555;
+      color: white;
+      padding: 16px 20px;
+      border: none;
+      cursor: pointer;
+      opacity: 0.8;
+      position: fixed;
+      bottom: 23px;
+      right: 28px;
+      width: 280px;
+    }
+    
+    /* The popup form - hidden by default */
+    .form-popup {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      right: 500px;
+      border: 5px solid #f1f1f1;
+      z-index: 9;
+    }
+    
+    /* Add styles to the form container */
+    .form-container {
+      max-width: 500px;
+      padding: 10px;
+      background-color: white;
+    }
+    
+    /* Full-width input fields */
+    .form-container input[type=text], .form-container input[type=password] {
+      width: 100%;
+      padding: 15px;
+      margin: 5px 0 22px 0;
+      border: solid 2px;
+      background: #f1f1f1;
+
+    }
+    
+    /* When the inputs get focus, do something */
+    .form-container input[type=text]:focus, .form-container input[type=password]:focus {
+      background-color: #ddd;
+      outline: none;
+    }
+    
+    /* Set a style for the submit/login button */
+    .form-container .btn {
+      background-color: #04AA6D;
+      color: white;
+      padding: 16px 20px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom:10px;
+      opacity: 0.8;
+    }
+    
+    /* Add a red background color to the cancel button */
+    .form-container .cancel {
+      background-color: red;
+    }
+    
+    /* Add some hover effects to buttons */
+    .form-container .btn:hover, .open-button:hover {
+      opacity: 1;
+    }
+    </style>
+    </head>
+    <body>
+    
+    {% comment %} <button class="open-button" onclick="openForm()">Open Form</button> {% endcomment %}
+    
+    <script>
+        function openForm() {
+          document.getElementById("myForm").style.display = "block";
+        
+          // Create a backdrop to block background interactions
+          const backdrop = document.createElement("div");
+          backdrop.id = "popup-backdrop";
+          backdrop.style.position = "fixed";
+          backdrop.style.top = "0";
+          backdrop.style.left = "0";
+          backdrop.style.width = "100%";
+          backdrop.style.height = "100%";
+          backdrop.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+          backdrop.style.zIndex = "8"; // Behind the popup (z-index: 9)
+          backdrop.style.backdropFilter = "blur(2px)";
+          document.body.appendChild(backdrop);
+        
+          // Lock body scroll
+          document.body.style.overflow = "hidden";
+        }
+        
+        function closeForm() {
+          document.getElementById("myForm").style.display = "none";
+        
+          // Remove the backdrop
+          const backdrop = document.getElementById("popup-backdrop");
+          if (backdrop) backdrop.remove();
+        
+          // Re-enable scroll
+          document.body.style.overflow = "auto";
+        }
+        </script>
+        
+
+
+
+
+    <!-- Reviews Section -->
+    <footer class="bg-gray-900 text-white p-8 mt-10 rounded-lg shadow-lg mx-auto max-w-3xl">
+            <h1 class="text-3xl font-bold border-b border-gray-700 pb-3 mb-5">Customer Reviews</h1>
+             
+            {% for rev in ice_rev %}
+            <div class="mb-6 p-5 bg-gray-800 rounded-lg shadow-lg transition hover:shadow-xl">
+                <h3 class="text-lg font-semibold text-gray-400">#{{ forloop.counter }}</h3>
+                <h4 class="text-xl font-medium">🍨 Ice Cream: <span class="text-yellow-400">{{ rev.ice }}</span></h4>
+                
+                <h4 class="text-lg text-gray-300">👤 User: <span class="font-semibold text-blue-400">{{ rev.user }}</span></h4>
+        
+                <p class="text-gray-400 mt-2">📝 "{{ rev.review }}"</p>
+        
+                <p class="text-gray-400 mt-2">Rating: 
+                    <span class="text-yellow-400">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= rev.rating %}
+                                ⭐
+                            {% else %}
+                               <i class="text-gray-400 mt-2" >☆</i>  <!-- Empty Star -->
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+        
+                </p>
+            </div>
+        {% empty %}
+            <p class="text-gray-400">No reviews yet. Be the first to review! 😃</p>
+        {% endfor %}
+        
+    </footer>
+
+{% endblock content %}
