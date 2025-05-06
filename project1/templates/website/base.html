@@ -12,6 +12,37 @@
 
     <title>Hello, world!</title>
   </head>
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <script>
+    function showPopup(event) {
+      event.preventDefault(); // Prevent default <a> click behavior
+  
+      Swal.fire({
+        title: 'Open WhatsApp?',
+        text: 'Would you like to start a chat with us on WhatsApp?',
+        icon: 'info',
+        iconColor: '#25D366', // WhatsApp green
+        showCancelButton: true,
+        confirmButtonColor: '#25D366',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, open it',
+        cancelButtonText: 'No, cancel',
+        backdrop: true,
+        reverseButtons: true,
+        customClass: {
+          popup: 'rounded-xl shadow-lg'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open("https://wa.me/923410700139", "_blank");
+        }
+      });
+    }
+  </script>
+  
+  
   <body>
 
     <!-- Optional JavaScript; choose one of the two! -->
@@ -37,24 +68,25 @@
 </head>
 
 <body>
-    <nav class="bg-blue-600 p-4 shadow-md">
-        <ul class="flex space-x-6 text-white font-semibold">
-            <li><a href="{% url 'home' %}" class="hover:text-gray-200 transition">Home</a></li>
-            <li><a href="{% url 'about1' %}" class="hover:text-gray-200 transition">About</a></li>
-            <li><a href="{% url 'show' %}" class="hover:text-gray-200 transition">Flavors</a></li>
-            <li><a href="{% url 'rev' %}" class="hover:text-gray-200 transition">leave Review</a></li>
-            <li><a href="{% url 'stores' %}" class="hover:text-gray-200 transition">Other Stores</a></li>
-            <div style="margin-left: 1300px;">
-                {% load static %}
-                    <li><a href="{% url 'cat' %}" class="hover:text-gray-200 transition"> 
-                        <img style="height: 40px; width: 40px;" src="{% static 'images/cat.png' %}" alt="Logo">
-                     </a></li>
-            </div>
-
+  <nav id="navbar" style="font-size: large;" class="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-md shadow-md transition-all duration-300 border-b border-white/20">
+    <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between text-white font-semibold">
+        <ul class="flex space-x-9">
+            <li><a href="{% url 'home' %}" class="hover:text-cyan-300 transition">Home</a></li>
+            <li><a href="{% url 'about1' %}" class="hover:text-cyan-300 transition">About</a></li>
+            <li><a href="{% url 'show' %}" class="hover:text-cyan-300 transition">Flavors</a></li>
+            <li><a href="{% url 'rev' %}" class="hover:text-cyan-300 transition">Leave Review</a></li>
+            <li><a href="{% url 'stores' %}" class="hover:text-cyan-300 transition">Other Stores</a></li>
         </ul>
-    </nav>
+        <a href="{% url 'cat' %}" class="ml-4">
+            {% load static %}
+            <img src="{% static 'images/cat.png' %}" alt="Logo" class="h-10 w-10 rounded-full border-2 border-white/30 shadow-lg">
+        </a>
+    </div>
+</nav>
+
 
     {% comment %} for log {% endcomment %}
+  <div class="pt-20 px-0">
 
     <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark d-flex align-items-center justify-content-between">
         <div class="col-md-6 px-0">
@@ -64,47 +96,108 @@
         </div>
     
         <!-- Animated Logo Container -->
-        <div class="logo-container" >
-            {% load static %}
-              <img  class="ice-cream-logo" src="{% static 'images/logo.png' %}" alt="Ice Cream Logo">
-        </div>
+        <div class="ice-cream-logo-text">
+            <div class="scoop-container">
+              <span class="scoop">🍦</span>
+              <div class="drip-dot"></div>
+            </div>
+            <span class="brand-name">
+              Wasim <span class="highlight"><span class="ice-i">I</span>ce Creem</span>
+            </span>
+          </div>
         
     </div>
     
-    <!-- CSS for Logo Animation -->
     <style>
-        .logo-container {
-            width: 120px;
-            height: 120px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    
-        .ice-cream-logo {
-            width: 100%;
-            animation: bounce 2s infinite ease-in-out;
-        }
-    
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-    
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .p-4.p-md-5 {
-                flex-direction: column;
-                text-align: center;
-            }
-    
-            .logo-container {
-                margin-top: 15px;
-            }
-        }
-    </style>
-    
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
+        .ice-cream-logo-text {
+          font-family: 'Pacifico', cursive;
+          font-size: 2.5rem;
+          text-align: center;
+          position: relative;
+          color: #ff66b2;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          margin-right: 100px;
+        }
+      
+        .scoop-container {
+          position: relative;
+          display: inline-block;
+          animation: rotateScoop 6s linear infinite;
+        }
+      
+        .scoop {
+          font-size: 4rem;
+          z-index: 2;
+        }
+      
+        .drip-dot {
+          width: 10px;
+          height: 10px;
+          background-color: #ff66b2;
+          border-radius: 50%;
+          position: absolute;
+          top: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          animation: dripToI 6s ease-in-out infinite;
+          z-index: 1;
+        }
+      
+        .brand-name {
+          margin-top: 5px;
+          text-shadow: 1px 1px 1px #fff, 0 0 10px #ff99cc;
+          position: relative;
+        }
+      
+        .highlight {
+          color: #00e6e6;
+          text-shadow: 1px 1px 1px #fff, 0 0 10px #00ffff;
+          position: relative;
+        }
+      
+        .ice-i {
+          position: relative;
+          z-index: 2;
+        }
+      
+        @keyframes rotateScoop {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      
+        @keyframes dripToI {
+          0% {
+            transform: translate(-50%, 0);
+            opacity: 1;
+          }
+          20% {
+            transform: translate(-50%, 0);
+            opacity: 1;
+          }
+          40% {
+            transform: translate(calc(-50% + 100px), 40px);
+            opacity: 1;
+          }
+          60% {
+            transform: translate(calc(-50% + 100px), 40px);
+            opacity: 1; /* stays at "I" */
+          }
+          80% {
+            transform: translate(-50%, 0);
+            opacity: 0;
+          }
+          100% {
+            transform: translate(-50%, 0);
+            opacity: 1;
+          }
+        }
+      </style>
+    
 
 
     <style>
@@ -116,16 +209,19 @@
         color: white;
         text-align: center;
     }
+  
 </style>
+</div>
+        <!--whatsapp-->
+
+<a href="#" class="whatsapp-float" onclick="showPopup(event)">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+  <div class="whatsapp-text">Chat Now</div>
+</a>
+
     {% block content %}
 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice Cream Shop</title>
     <style>
         body {
             margin: 0;
@@ -199,11 +295,9 @@
             opacity: 0.9;
         }
     </style>
-</head>
-<body>
 
     <section class="hero">
-        <h1>Welcome to MK(Ice-Creem)</h1>
+        <h1>Welcome to Wasim(Ice-Creem)</h1>
         <p>Indulge in the creamiest, dreamiest ice cream made with love and the finest ingredients. Every bite is a sweet escape!</p>
         
         <div class="features">
@@ -232,8 +326,6 @@
     </section>
 
 
-
-
     {% endblock %}
 
         {% comment %} stores {% endcomment %}
@@ -253,12 +345,18 @@
                     <div class="d-flex align-items-center mb-4"> <!-- Adds spacing between items -->
                         <img class="rounded-circle shadow-lg me-3" src="{{ cerft.image.url }}" alt="Certificate Image" width="120" height="120">
                         <div style="color: gray; font-size: large;">
-                            <a href="https://www.phc.org.pk/#/home"></a>
-                            <h4 class="mb-1">Certified By:  <a href="https://www.phc.org.pk/#/home">{{ cerft.commission }}</a> </h4>
+                          <a title="PHC Official Website" target="_blank" href="https://www.phc.org.pk/#/home">Visit PHC Website</a>
+                            <h4 class="mb-1">Certified By:  <a href="https://www.phc.org.pk/#/home" onclick="allow()">{{ cerft.commission }}</a> </h4>
                             <p class="text-muted">Certificate No: {{ cerft.certificate_no }}</p>
                         </div>
                     </div>
                     {% endfor %}
+
+                    <script>
+                      function allow(){
+                      alert("Allow to open website of Punjab healthcare commission")
+                    }
+                    </script>
 
                     <style>
                         .whatsapp-float {
@@ -294,10 +392,7 @@
                         }
                     </style>
                     
-                    <a href="https://wa.me/923410700139" target="_blank" class="whatsapp-float">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-                        <div class="whatsapp-text">Chat Now</div>
-                    </a>
+                 
                     
                     
 

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+
+
+</head>
+
+<body class="bg-gradient-to-r from-purple-500 to-indigo-600 text-gray-800">
+
+
+
+
+    <nav id="navbar" style="font-size: large;" class="fixed top-0 left-0 w-full z-50 bg-white/20 backdrop-blur-md shadow-md transition-all duration-300 border-b border-white/20">
+        <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between text-white font-bold">
+            <ul class="flex space-x-9">
+                <li><a href="#w1" class="hover:text-cyan-300 transition">All Ice Cream</a></li>
+                <li><a href="#w2" class="hover:text-cyan-300 transition">All Customers</a></li>
+                <li><a href="#w3" class="hover:text-cyan-300 transition">All Stores</a></li>
+                <li><a href="{% url 'logout' %}" class="hover:text-cyan-300 transition">log-Out</a></li>
+                <li><a href="{% url 'home' %}" class="hover:text-cyan-300 transition">Switch to Clint Side</a></li>
+            </ul>
+        </div>
+    </nav>
+
+
+
+<br>
+<br>
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-semibold text-center mb-6" id="w1">All Ice Creams</h1>
+
+<div class="flex justify-end mb-4">
+  <button type="button" onclick="open_add_item_Form()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+    Add New Item
+  </button>
+</div>
+
+<table class="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
+  <thead class="bg-gray-200">
+    <tr>
+      <th class="py-2 px-4 text-left">Name of Ice Cream</th>
+      <th class="py-2 px-4 text-left">Image</th>
+      <th class="py-2 px-4 text-left">Date</th>
+      <th class="py-2 px-4 text-left">Type</th>
+      <th class="py-2 px-4 ">Description</th>
+      <th class="py-2 px-4 text-left">Available Ice</th>
+      <th class="py-2 px-4 text-left">Prices</th>
+      <th class="py-2 px-4 text-left">Setting</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr class="border-b hover:bg-gray-50">
+      <td class="py-2 px-4">{{ item.name }}</td>
+      <td class="py-2 px-4">
+        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-16 h-16 object-cover rounded" />
+      </td>
+      <td class="py-2 px-4">{{ item.date }}</td>
+      <td class="py-2 px-4">{{ item.type }}</td>
+      <td class="py-2 px-4">{{ item.dec }}</td>
+      <td class="py-2 px-4">{{ item.avalible_ch }}</td>
+      <td class="py-2 px-4">{{ item.price }}</td>
+      <td class="py-2 px-4">
+        <button
+          type="button"
+          onclick="openModifyForm(
+            {{ item.id }},
+            '{{ item.name }}',
+            '{{ item.image }}',
+            '{{ item.date }}',
+            '{{ item.type }}',
+            '{{ item.dec }}',
+            '{{ item.avalible_ch }}',
+            '{{ item.price }}'
+          )"
+          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          Modify
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+        <br>
+
+        <h1 class="text-3xl font-semibold text-center mb-6" id="w2">All Customers</h1>
+        <canvas id="dailyChart" class="mb-8 w-full max-w-4xl mx-auto"></canvas>
+
+        <!-- ✅ CSRF token for JavaScript -->
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<script>
+    function openDeleteCustomerForm() {
+        const csrfToken = document.getElementById("csrf_token").value;
+
+        const formHTML = `
+            <form id="deleteForm" action="/app1/delete_cus/" method="POST">
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                <div>
+                    <label for="no" class="block text-sm">How many users to delete?</label>
+                    <input type="number" name="no" id="no" class="w-full p-2 border rounded-md" placeholder="Enter number">
+                </div>
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 mt-3">Delete Customers</button>
+            </form>
+        `;
+
+        Swal.fire({
+            title: 'Delete Customers',
+            html: formHTML,
+            showConfirmButton: false,
+            showCloseButton: true,
+            focusConfirm: false,
+            allowOutsideClick: false
+        });
+    }
+</script>
+
+
+        <div class="text-center mb-6">
+            <button id="toggleGraphBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                Graph View
+            </button>
+        </div>
+        
+        <div id="graphContainer" class="hidden mb-8 w-full max-w-4xl mx-auto">
+            <canvas id="dailyChart"></canvas>
+        </div>
+        
+
+        <table class="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="py-2 px-4 text-left">S.No</th>
+                    <th class="py-2 px-4 text-left">Ice Name</th>
+                    <th class="py-2 px-4 text-left">Quantity</th>
+                    <th class="py-2 px-4 text-left">Name</th>
+                    <th class="py-2 px-4 text-left">Phone</th>
+                    <th class="py-2 px-4 text-left">Address</th>
+                    <th class="py-2 px-4 text-left">Order ID</th>
+                    <th class="py-2 px-4 text-left">E-Mail</th>
+                    <th class="py-2 px-4 text-left">Date</th>
+                    <th class="py-2 px-4 text-left">Bill</th>
+                </tr>
+            </thead>
+            <tbody id="customerTable">
+                {% for customer in customers %}
+                <tr class="border-b hover:bg-gray-50 hidden">
+                    <td class="py-2 px-4">{{ forloop.counter }}</td>
+                    <td class="py-2 px-4">{{ customer.ice_name }}</td>
+                    <td class="py-2 px-4">{{ customer.quantity }}</td>
+                    <td class="py-2 px-4">{{ customer.name }}</td>
+                    <td class="py-2 px-4">{{ customer.phone }}</td>
+                    <td class="py-2 px-4">{{ customer.address }}</td>
+                    <td class="py-2 px-4">{{ customer.order_id }}</td>
+                    <td class="py-2 px-4">{{ customer.email }}</td>
+                    <td class="py-2 px-4">{{ customer.date }}</td>
+                    <td class="py-2 px-4">{{ customer.bill }}</td>
+                </tr>
+                {% endfor %}
+                <tr><td>
+                    <div class="text-center mt-4">
+                        <button id="loadMoreBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Load More Rows</button>
+                    </div>
+                </td></tr>
+
+                <tr><td>
+                    <button onclick="openDeleteCustomerForm()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                        Delete Selected Customers
+                    </button>
+                </td></tr>
+            </tbody>
+        </table>
+        
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const rows = document.querySelectorAll('#customerTable tr');
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                let visibleCount = 10;
+        
+                // Show initial 10 rows
+                for (let i = 0; i < visibleCount && i < rows.length; i++) {
+                    rows[i].classList.remove('hidden');
+                }
+        
+                loadMoreBtn.addEventListener('click', function () {
+                    let nextCount = visibleCount + 10;
+                    for (let i = visibleCount; i < nextCount && i < rows.length; i++) {
+                        rows[i].classList.remove('hidden');
+                    }
+                    visibleCount = nextCount;
+        
+                    if (visibleCount >= rows.length) {
+                        loadMoreBtn.style.display = 'none';
+                    }
+                });
+        
+                // Hide button if fewer than 10 rows
+                if (rows.length <= 10) {
+                    loadMoreBtn.style.display = 'none';
+                }
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const toggleBtn = document.getElementById('toggleGraphBtn');
+                const graphContainer = document.getElementById('graphContainer');
+                let chartInitialized = false;
+        
+                toggleBtn.addEventListener('click', () => {
+                    graphContainer.classList.toggle('hidden');
+                    if (!chartInitialized) {
+                        renderChart();
+                        chartInitialized = true;
+                    }
+                });
+        
+                function renderChart() {
+                    const rawData = [
+                        {% for customer in customers %}
+                            { date: "{{ customer.date }}", bill: {{ customer.bill|floatformat:2 }} },
+                        {% endfor %}
+                    ];
+        
+                    const grouped = {};
+                    rawData.forEach(item => {
+                        if (!grouped[item.date]) {
+                            grouped[item.date] = { count: 0, totalBill: 0 };
+                        }
+                        grouped[item.date].count += 1;
+                        grouped[item.date].totalBill += item.bill;
+                    });
+        
+                    const labels = Object.keys(grouped).sort();
+                    const counts = labels.map(date => grouped[date].count);
+                    const bills = labels.map(date => grouped[date].totalBill.toFixed(2));
+        
+                    const ctx = document.getElementById('dailyChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Number of Orders',
+                                    data: counts,
+                                    backgroundColor: '#a78bfa', // Soft purple
+                                    borderColor: '#a78bfa',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Total Bill (₹)',
+                                    data: bills,
+                                    backgroundColor: '#6366f1', // Indigo
+                                    borderColor: '#6366f1',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#f3f4f6' // Light gray for visibility on dark bg
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        color: '#f3f4f6' // Y-axis label color
+                                    },
+                                    grid: {
+                                        color: 'rgba(255,255,255,0.1)'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#f3f4f6' // X-axis label color
+                                    },
+                                    grid: {
+                                        color: 'rgba(255,255,255,0.05)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        </script>
+        
+        
+        
+        
+
+        <br>
+            <h1 class="text-3xl font-semibold text-center mb-6">All Stores</h1>
+            <button type="button" onclick="add_new_store()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" id="w3">Add New Store</button>
+            <table class="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="py-2 px-4 text-left">S.No</th>
+                        <th class="py-2 px-4 text-left">Name</th>
+                        <th class="py-2 px-4 text-left">Location</th>
+                        <th class="py-2 px-4 text-left">Avilable Ice-Creem Types</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for store in stores %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-4">{{ forloop.counter }}</td>
+                        <td class="py-2 px-4">{{ store.name }}</td>
+                        <td class="py-2 px-4">{{ store.location }}</td>
+                        <td class="py-2 px-4">
+                            {% for item in store.ice_type.all %}
+                                {{ item.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+
+    </div>
+
+<!-- ✅ Hidden CSRF token for JS access -->
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<script>
+    function openModifyForm(id, name, image, date, type, dec, available, price) {
+        const csrfToken = document.getElementById("csrf_token").value;
+
+
+
+            const formHTML = `
+                <form id="modifyForm" action="/app1/update/${id}/" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm">Name of Ice Cream</label>
+                            <input type="text" name="name" id="name" value="${name}" class="w-full p-2 border rounded-md" placeholder="Enter Ice Cream Name">
+                        </div>
+                        <div>
+                        
+                            <label for="image" class="block text-sm">Image</label>
+                            <input type="file" name="image" id="image" class="w-full p-2 border rounded-md">
+                            <p class="text-xs text-gray-500">Current Image: ${image}</p>
+                        </div>
+                        <div>
+                            <label for="type" class="block text-sm">Type</label>
+                            <input type="text" name="type" id="type" value="${type}" class="w-full p-2 border rounded-md" placeholder="Enter Ice Cream Type">
+                        </div>
+                        <div>
+                            <label for="dec" class="block text-sm">Description</label>
+                            <input type="text" name="dec" id="dec" value="${dec}" class="w-full p-2 border rounded-md" placeholder="Enter Description">
+                        </div>
+                        <div>
+                            <label for="ava" class="block text-sm">Available Ice</label>
+                            <input type="number" name="ava" id="ava" value="${available}" class="w-full p-2 border rounded-md" placeholder="Enter Available Quantity">
+                        </div>
+                        <div>
+                            <label for="price" class="block text-sm">Price</label>
+                            <input type="number" name="price" id="price" value="${price}" class="w-full p-2 border rounded-md" placeholder="Enter Price">
+                        </div>
+                        <button  type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Save Changes</button>
+
+                    </div>
+                </form>
+            `;
+        
+            Swal.fire({
+                title: 'Modify Ice Cream Item',
+                html: formHTML,
+                showConfirmButton: false,
+                showCloseButton: true,
+                focusConfirm: false,
+                allowOutsideClick: false
+            });
+        }
+        
+    </script>
+
+    {% comment %} Add Item {% endcomment %}
+    
+<!-- ✅ Hidden CSRF token for JS access -->
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<script>
+    function open_add_item_Form() {
+        const csrfToken = document.getElementById("csrf_token").value;
+
+        const formHTML = `
+            <form id="addForm" action="/app1/add/" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm">Name of Ice Cream</label>
+                        <input type="text" name="name" id="name" class="w-full p-2 border rounded-md" placeholder="Enter Ice Cream Name">
+                    </div>
+                    <div>
+                        <label for="image" class="block text-sm">Image</label>
+                        <input type="file" name="image" id="image" class="w-full p-2 border rounded-md">
+                    </div>
+                    <div>
+                        <label for="type" class="block text-sm">Type</label>
+                        <input type="text" name="type" id="type" class="w-full p-2 border rounded-md" placeholder="Enter Ice Cream Type">
+                    </div>
+                    <div>
+                        <label for="dec" class="block text-sm">Description</label>
+                        <input type="text" name="dec" id="dec" class="w-full p-2 border rounded-md" placeholder="Enter Description">
+                    </div>
+                    <div>
+                        <label for="ava" class="block text-sm">Available Ice</label>
+                        <input type="number" name="ava" id="ava" class="w-full p-2 border rounded-md" placeholder="Enter Available Quantity">
+                    </div>
+                    <div>
+                        <label for="price" class="block text-sm">Price</label>
+                        <input type="number" name="price" id="price" class="w-full p-2 border rounded-md" placeholder="Enter Price">
+                    </div>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Save Item</button>
+                </div>
+            </form>
+        `;
+        
+        Swal.fire({
+            title: 'Add New Ice Cream Item',
+            html: formHTML,
+            showConfirmButton: false,
+            showCloseButton: true,
+            focusConfirm: false,
+            allowOutsideClick: false
+        });
+    }
+</script>
+
+
+  {% comment %} Add new Store {% endcomment %}
+    
+<!-- ✅ Hidden CSRF token for JS access -->
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<script>
+    function add_new_store() {
+        const csrfToken = document.getElementById("csrf_token").value;
+
+        const formHTML = `
+            <form id="addForm" action="/app1/add_store/" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm">Name of Store</label>
+                        <input type="text" name="name" id="name" class="w-full p-2 border rounded-md" placeholder="Enter Name of store">
+                    </div>
+                    <div>
+                        <label for="image" class="block text-sm">Location</label>
+                        <input type="text" name="location" id="location" class="w-full p-2 border rounded-md" placeholder="Enter location">
+                    </div>
+                    <div>
+                        <label for="ice_type" class="block text-sm">Ice Cream Types</label>
+                        <select name="ice_type" id="ice_type" multiple class="w-full p-2 border rounded-md">
+                            {% for item in items %}
+                                <option value="{{ item.id }}">{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <p class="text-xs text-gray-500">Hold Ctrl (Windows) or Cmd (Mac) to select multiple</p>
+                    </div>
+                                        
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Save Item</button>
+                </div>
+            </form>
+        `;
+        
+        Swal.fire({
+            title: 'Add New Store',
+            html: formHTML,
+            showConfirmButton: false,
+            showCloseButton: true,
+            focusConfirm: false,
+            allowOutsideClick: false
+        });
+    }
+</script>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
+{% if messages %}
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            {% for message in messages %}
+            Toastify({
+                text: "{{ message|escapejs }}",
+                duration: 9000,
+                gravity: "bottom",
+                position: "right",
+                backgroundColor: "{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}#28a745{% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}#dc3545{% else %}#007bff{% endif %}",
+                close: true,  // ✅ Enables close (X) icon
+                stopOnFocus: true
+            }).showToast();
+        {% endfor %}
+         });
+</script>
+{% endif %}
+    
+  
+</body>
+
+</html>

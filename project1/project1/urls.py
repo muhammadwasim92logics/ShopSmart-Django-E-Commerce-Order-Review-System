@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('app1/', include('app1.urls')),
     path('',views.home,name='home'),
-    path('contect/',views.contect,name='contect'),
+    # path('contect/',views.contect,name='contect'),
     path('about/',views.about,name='about'),
     
     path("__reload__/", include("django_browser_reload.urls")),

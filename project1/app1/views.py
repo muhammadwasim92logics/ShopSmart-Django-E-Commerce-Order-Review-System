@@ -2,11 +2,141 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from app1.models import Items,IceReviews,IceCreamImage,Customers, Stores, IceCertificate, card
 from django.contrib import messages
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from random import randint
 import smtplib
 import os
+from datetime import date
+
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from concurrent.futures import ThreadPoolExecutor
+from app1.models import Items, Customers, card, IceReviews, Stores, IceCertificate
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login as auth_login, logout
+from django.contrib import messages
+from .models import Items, Customers, card  # Make sure to import your models
+
+
+def admin_login(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        password = request.POST.get('password')
+        user = authenticate(username=name, password=password)
+        if user:
+            auth_login(request, user)
+            messages.success(request, 'Log-In Successfully')
+            return redirect('admin_home')
+        else:
+            messages.error(request, "Invalid Login Information")
+            return render(request, 'admin.html')
+
+    return render(request, 'admin.html')
+
+
+def admin_home(request):
+    if request.user.is_authenticated:
+        context = {
+            'items': Items.objects.all(),
+            'customers': Customers.objects.all(),
+            'cards': card.objects.all(),
+            'stores': Stores.objects.all()
+        }
+        return render(request, "admin_home.html", context)
+    else:
+        messages.error(request, "Please log in first.")
+        return redirect('admin_login')  # or wherever your login page is
+
+
+def logout(request):
+            auth_logout(request)
+            messages.success(request, 'Log-out Successfully')
+            return redirect("admin_login")
+    
+    
+    
+def delete_cus(request):
+    if request.method == "POST":
+        try:
+            no = int(request.POST.get('no', 0))
+            ids_to_delete = Customers.objects.values_list('id', flat=True)[:no]
+            Customers.objects.filter(id__in=ids_to_delete).delete()
+            messages.success(request, "Customers deleted successfully.")
+        except Exception as e:
+            messages.error(request, "Error deleting customers")
+    return redirect('admin_home')
+
+
+
+def add(request):
+    if request.method == "POST":
+        
+        name=request.POST.get("name")
+        # image=request.POST.get("image")
+        image = request.FILES.get("image")  # Get file from FILES, not POST
+        date1= date.today()
+        type=request.POST.get("type")
+        dec=request.POST.get("dec")
+        ava=request.POST.get("ava")
+        price=request.POST.get("price")
+        items1=Items(name=name, image=image, date=date1, type=type, dec=dec, avalible_ch=ava, price=price )
+        items1.save()
+        messages.success(request,"Item Add Successfully")
+    return redirect('admin_home')
+        
+
+def update(request, id):
+    item = get_object_or_404(Items, pk=id)
+
+    if request.method == "POST":
+        item.name = request.POST.get('name')
+        item.date =  date.today()
+        item.type = request.POST.get('type')
+        item.dec = request.POST.get('dec')
+        item.avalible_ch = request.POST.get('ava')
+        item.price = request.POST.get('price')
+
+        # Update image only if a new one is uploaded
+        if request.FILES.get('image'):
+            item.image = request.FILES['image']
+
+        item.save()
+
+        # Optional success message
+        messages.success(request, "Ice Cream updated successfully!")
+
+        return redirect('admin_home')  # Ensure this is a valid URL name in your urls.py
+
+    # You likely don't need to render this view if it's POST-only for SweetAlert-based popup form.
+    return redirect('admin_home')
+
+
+def add_store(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        location = request.POST.get("location")
+        ice_type_ids = request.POST.getlist("ice_type")  # Get multiple selected IDs
+
+        new_store = Stores.objects.create(name=name, location=location)
+        new_store.ice_type.set(ice_type_ids)  # Set the many-to-many relationship
+        messages.success(request, "Store added successfully")
+
+    return redirect('admin_home')
+
+
+# def add_store(request):
+#         if request.method == "POST":
+        
+#             name=request.POST.get("name")
+#             type=request.POST.get("ice_type")
+#             location=request.POST.get("location")
+#             items1=Stores(name=name,  type=type, location=location )
+#             items1.save()
+#             messages.success(request,"Store Add Successfully")
+#         return redirect('admin_home')
+    
+
 
 def cat(request):
     return render(request,'cat.html')
